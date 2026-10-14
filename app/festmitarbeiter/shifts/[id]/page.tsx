@@ -7,12 +7,13 @@ import { RoleBadge } from "@/components/role-badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { useToast } from "@/hooks/use-toast"
-import { apiGet, apiPost, apiPut } from "@/lib/apiClient"
+import { ApiError, apiGet, apiPost, apiPut } from "@/lib/apiClient"
 import { getAuthUser, getUserRole } from "@/lib/auth"
 import type { ShiftDetails, ConfirmationStatus, AvailableStaff } from "@/lib/types"
 import { participantDisplayName, ParticipantRole } from "@/lib/types"
 import { StatusBadge } from "@/components/status-badge"
 import { ReadinessBadge } from "@/components/readiness-badge"
+import { CONFIRMATION_STATUS_CONFIG, SHIFT_STATUS_CONFIG } from "@/lib/status-config"
 import { DashboardHeader } from "@/components/dashboard-header"
 import { DashboardFooter } from "@/components/dashboard-footer"
 import { ArrowLeft, Calendar, MapPin, Users, UserPlus } from "lucide-react"
@@ -48,12 +49,7 @@ export default function FestmitarbeiterShiftDetailsPage({ params }: { params: Pr
 
 function confirmationBadge(status: ConfirmationStatus | undefined) {
   if (!status) return null
-  const styles: Record<ConfirmationStatus, { bg: string; color: string; label: string }> = {
-    Invited: { bg: "#f59e0b", color: "#fff", label: "Eingeladen" },
-    Accepted: { bg: "#16a34a", color: "#fff", label: "Angenommen" },
-    Declined: { bg: "#dc2626", color: "#fff", label: "Abgelehnt" },
-  }
-  const s = styles[status]
+  const config = CONFIRMATION_STATUS_CONFIG[status]
   return (
     <span
       style={{
@@ -62,12 +58,12 @@ function confirmationBadge(status: ConfirmationStatus | undefined) {
         fontWeight: 500,
         padding: "0.1rem 0.45rem",
         borderRadius: "9999px",
-        backgroundColor: s.bg,
-        color: s.color,
+        backgroundColor: config.backgroundColor,
+        color: config.color,
         marginLeft: "0.4rem",
       }}
     >
-      {s.label}
+      {config.label}
     </span>
   )
 }
@@ -121,8 +117,8 @@ function FestmitarbeiterShiftDetailsContent({ shiftId }: { shiftId: string }) {
     try {
       await apiPut(`/api/shifts/${shiftId}/propose`)
       toast({
-        title: "Einsatz vorgeschlagen",
-        description: "Der Einsatz wurde zur Genehmigung eingereicht.",
+        title: "Team vorgeschlagen",
+        description: "Das Team wurde zur Genehmigung eingereicht.",
       })
       await loadShift()
     } catch (error) {
@@ -192,8 +188,17 @@ function FestmitarbeiterShiftDetailsContent({ shiftId }: { shiftId: string }) {
       // Filter out existing participants
       const existingIds = new Set(shift.participants.map((p) => p.userId.toLowerCase()))
       setAvailableStaff(staff.filter((s) => !existingIds.has(s.userId.toLowerCase())))
-    } catch {
-      toast({ title: "Mitarbeiter konnten nicht geladen werden.", variant: "destructive" })
+    } catch (error) {
+      const description = error instanceof ApiError
+        ? `HTTP ${error.status}: ${error.message}`
+        : error instanceof Error
+          ? error.message
+          : "Unbekannter Fehler"
+      toast({
+        title: "Mitarbeiter konnten nicht geladen werden.",
+        description,
+        variant: "destructive",
+      })
       setShowAddParticipant(false)
     } finally {
       setLoadingStaff(false)
@@ -411,19 +416,19 @@ function FestmitarbeiterShiftDetailsContent({ shiftId }: { shiftId: string }) {
             <AlertDialog>
               <AlertDialogTrigger asChild>
                 <Button disabled={isBusy} className="w-full" size="lg">
-                  {isProposing ? "Wird eingereicht..." : "Vorschlagen"}
+                  {isProposing ? "Wird eingereicht..." : "Team vorschlagen"}
                 </Button>
               </AlertDialogTrigger>
               <AlertDialogContent>
                 <AlertDialogHeader>
-                  <AlertDialogTitle>Einsatz vorschlagen?</AlertDialogTitle>
+                  <AlertDialogTitle>Team vorschlagen?</AlertDialogTitle>
                   <AlertDialogDescription>
-                    Der Einsatz wird zur Genehmigung eingereicht und erhält den Status „Zur Genehmigung".
+                    Das Team wird mit diesem Einsatz zur Genehmigung eingereicht und erhält den Status „Zur Genehmigung".
                   </AlertDialogDescription>
                 </AlertDialogHeader>
                 <AlertDialogFooter>
                   <AlertDialogCancel>Abbrechen</AlertDialogCancel>
-                  <AlertDialogAction onClick={handlePropose}>Vorschlagen</AlertDialogAction>
+                  <AlertDialogAction onClick={handlePropose}>Team vorschlagen</AlertDialogAction>
                 </AlertDialogFooter>
               </AlertDialogContent>
             </AlertDialog>
@@ -520,7 +525,7 @@ function FestmitarbeiterShiftDetailsContent({ shiftId }: { shiftId: string }) {
             <Card>
               <CardContent className="pt-6">
                 <p className="text-center text-muted-foreground" style={{ fontSize: "0.85rem" }}>
-                  Keine Aktionen verfügbar für Status: {shift.status}
+                  Keine Aktionen verfügbar für Status: {SHIFT_STATUS_CONFIG[shift.status].label}
                 </p>
               </CardContent>
             </Card>

@@ -13,6 +13,7 @@ import type { ShiftDetails, ConfirmationStatus } from "@/lib/types"
 import { participantDisplayName } from "@/lib/types"
 import { StatusBadge } from "@/components/status-badge"
 import { ReadinessBadge } from "@/components/readiness-badge"
+import { CONFIRMATION_STATUS_CONFIG } from "@/lib/status-config"
 import { DashboardHeader } from "@/components/dashboard-header"
 import { DashboardFooter } from "@/components/dashboard-footer"
 import { ArrowLeft, Calendar, MapPin, Users } from "lucide-react"
@@ -40,12 +41,7 @@ export default function LeaderShiftDetailsPage({ params }: { params: Promise<{ i
 
 function confirmationBadge(status: ConfirmationStatus | undefined) {
   if (!status) return null
-  const styles: Record<ConfirmationStatus, { bg: string; color: string; label: string }> = {
-    Invited: { bg: "#f59e0b", color: "#fff", label: "Eingeladen" },
-    Accepted: { bg: "#16a34a", color: "#fff", label: "Angenommen" },
-    Declined: { bg: "#dc2626", color: "#fff", label: "Abgelehnt" },
-  }
-  const s = styles[status]
+  const config = CONFIRMATION_STATUS_CONFIG[status]
   return (
     <span
       style={{
@@ -54,12 +50,12 @@ function confirmationBadge(status: ConfirmationStatus | undefined) {
         fontWeight: 500,
         padding: "0.1rem 0.45rem",
         borderRadius: "9999px",
-        backgroundColor: s.bg,
-        color: s.color,
+        backgroundColor: config.backgroundColor,
+        color: config.color,
         marginLeft: "0.4rem",
       }}
     >
-      {s.label}
+      {config.label}
     </span>
   )
 }

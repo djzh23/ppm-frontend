@@ -5,7 +5,8 @@ import { useRouter } from "next/navigation"
 import { RoleGuard } from "@/components/role-guard"
 import { ShiftCard } from "@/components/shift-card"
 import { apiGet } from "@/lib/apiClient"
-import type { ShiftSummary } from "@/lib/types"
+import type { ShiftStatus, ShiftSummary } from "@/lib/types"
+import { SHIFT_STATUS_CONFIG, SHIFT_STATUS_ORDER } from "@/lib/status-config"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Card, CardContent } from "@/components/ui/card"
 import { DashboardHeader } from "@/components/dashboard-header"
@@ -43,10 +44,10 @@ function LeaderInboxContent() {
     }
   }
 
-  const draftShifts = shifts.filter((e) => e.status === "Draft")
-  const pendingShifts = shifts.filter((e) => e.status === "PendingApproval")
-  const plannedShifts = shifts.filter((e) => e.status === "Planned")
-  const activeShifts = shifts.filter((e) => e.status === "Active")
+  const shiftsByStatus = SHIFT_STATUS_ORDER.reduce((groups, status) => {
+    groups[status] = shifts.filter((shift) => shift.status === status)
+    return groups
+  }, {} as Record<ShiftStatus, ShiftSummary[]>)
 
   function ShiftList({ list }: { list: ShiftSummary[] }) {
     if (isLoading) return <div className="text-center py-8 text-muted-foreground" style={{ fontSize: "0.85rem" }}>Laden...</div>
@@ -85,34 +86,24 @@ function LeaderInboxContent() {
         </div>
         <Card>
           <CardContent style={{ paddingTop: "1.5rem" }}>
-            <Tabs defaultValue="draft" className="w-full">
-              <TabsList className="grid w-full grid-cols-4">
-                <TabsTrigger value="draft">
-                  Entwurf {draftShifts.length > 0 && `(${draftShifts.length})`}
-                </TabsTrigger>
-                <TabsTrigger value="pending">
-                  Ausstehend {pendingShifts.length > 0 && `(${pendingShifts.length})`}
-                </TabsTrigger>
-                <TabsTrigger value="planned">
-                  Geplant {plannedShifts.length > 0 && `(${plannedShifts.length})`}
-                </TabsTrigger>
-                <TabsTrigger value="active">
-                  Aktiv {activeShifts.length > 0 && `(${activeShifts.length})`}
-                </TabsTrigger>
+            <Tabs defaultValue="Draft" className="w-full">
+              <TabsList className="grid w-full grid-cols-2 sm:grid-cols-3 lg:grid-cols-6">
+                {SHIFT_STATUS_ORDER.map((status) => {
+                  const config = SHIFT_STATUS_CONFIG[status]
+                  const count = shiftsByStatus[status].length
+                  return (
+                    <TabsTrigger key={status} value={status}>
+                      {config.collectionLabel} {count > 0 && `(${count})`}
+                    </TabsTrigger>
+                  )
+                })}
               </TabsList>
 
-              <TabsContent value="draft" className="mt-6">
-                <ShiftList list={draftShifts} />
-              </TabsContent>
-              <TabsContent value="pending" className="mt-6">
-                <ShiftList list={pendingShifts} />
-              </TabsContent>
-              <TabsContent value="planned" className="mt-6">
-                <ShiftList list={plannedShifts} />
-              </TabsContent>
-              <TabsContent value="active" className="mt-6">
-                <ShiftList list={activeShifts} />
-              </TabsContent>
+              {SHIFT_STATUS_ORDER.map((status) => (
+                <TabsContent key={status} value={status} className="mt-6">
+                  <ShiftList list={shiftsByStatus[status]} />
+                </TabsContent>
+              ))}
             </Tabs>
           </CardContent>
         </Card>

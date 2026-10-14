@@ -1,35 +1,23 @@
 import { Badge } from "@/components/ui/badge"
 import type { ShiftStatus } from "@/lib/types"
+import { SHIFT_STATUS_CONFIG } from "@/lib/status-config"
 
 interface StatusBadgeProps {
   status: ShiftStatus
 }
 
-const labels: Record<ShiftStatus, string> = {
-  Draft: "Entwurf",
-  PendingApproval: "Zur Genehmigung",
-  Planned: "Geplant",
-  Active: "Aktiv",
-  Completed: "Abgeschlossen",
-  Cancelled: "Storniert",
-}
-
 export function StatusBadge({ status }: StatusBadgeProps) {
-  if (status === "PendingApproval") {
-    return (
-      <Badge style={{ backgroundColor: "#f59e0b", color: "#fff", border: "none" }}>
-        {labels[status]}
-      </Badge>
-    )
-  }
+  const config = SHIFT_STATUS_CONFIG[status]
 
-  const variants: Partial<Record<ShiftStatus, "secondary" | "default" | "outline" | "destructive">> = {
-    Draft: "secondary",
-    Planned: "default",
-    Active: "outline",
-    Completed: "secondary",
-    Cancelled: "destructive",
-  }
-
-  return <Badge variant={variants[status]}>{labels[status]}</Badge>
+  return (
+    <Badge
+      style={{
+        backgroundColor: config.backgroundColor,
+        color: config.color,
+        borderColor: config.borderColor,
+      }}
+    >
+      {config.label}
+    </Badge>
+  )
 }

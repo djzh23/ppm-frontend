@@ -17,7 +17,18 @@ import {
 import { Button } from "@/components/ui/button"
 import { DashboardHeader } from "@/components/dashboard-header"
 import { DashboardFooter } from "@/components/dashboard-footer"
-import { Plus, FileEdit, CalendarCheck, Zap } from "lucide-react"
+import { Plus, FileEdit, ClipboardCheck, CalendarCheck, Zap, CheckCircle2, Ban } from "lucide-react"
+import type { ShiftStatus } from "@/lib/types"
+import { SHIFT_STATUS_CONFIG, SHIFT_STATUS_ORDER } from "@/lib/status-config"
+
+const statusIcons = {
+  Draft: FileEdit,
+  PendingApproval: ClipboardCheck,
+  Planned: CalendarCheck,
+  Active: Zap,
+  Completed: CheckCircle2,
+  Cancelled: Ban,
+}
 
 export default function CoordinatorShiftsPage() {
   return (
@@ -48,15 +59,22 @@ function CoordinatorShiftsContent() {
     }
   }
 
-  const draftEinsaetze = einsaetze.filter((e) => e.status === "Draft")
-  const plannedEinsaetze = einsaetze.filter((e) => e.status === "Planned")
-  const activeEinsaetze = einsaetze.filter((e) => e.status === "Active")
+  const shiftsByStatus = SHIFT_STATUS_ORDER.reduce((groups, status) => {
+    groups[status] = einsaetze.filter((einsatz) => einsatz.status === status)
+    return groups
+  }, {} as Record<ShiftStatus, ShiftSummary[]>)
 
-  const statCards = [
-    { label: "Entwürfe", value: draftEinsaetze.length, icon: FileEdit, color: "#1e40af", bg: "#dbeafe" },
-    { label: "Geplant",  value: plannedEinsaetze.length, icon: CalendarCheck, color: "#b45309", bg: "#fef9c3" },
-    { label: "Aktiv",    value: activeEinsaetze.length, icon: Zap, color: "#166534", bg: "#dcfce7" },
-  ]
+  const statCards = SHIFT_STATUS_ORDER.map((status) => {
+    const config = SHIFT_STATUS_CONFIG[status]
+    return {
+      status,
+      label: config.collectionLabel,
+      value: shiftsByStatus[status].length,
+      icon: statusIcons[status],
+      color: config.color,
+      bg: config.backgroundColor,
+    }
+  })
 
   const EmptyState = ({ label, showCreate = false }: { label: string; showCreate?: boolean }) => (
     <div
@@ -176,9 +194,9 @@ function CoordinatorShiftsContent() {
             marginBottom: "2rem",
           }}
         >
-          {statCards.map(({ label, value, icon: Icon, color, bg }) => (
+          {statCards.map(({ status, label, value, icon: Icon, color, bg }) => (
             <div
-              key={label}
+              key={status}
               style={{
                 backgroundColor: "hsl(var(--card))",
                 border: "0.5px solid hsl(var(--border))",
@@ -221,62 +239,40 @@ function CoordinatorShiftsContent() {
             <CardDescription>Einsätze nach Status anzeigen und verwalten</CardDescription>
           </CardHeader>
           <CardContent>
-            <Tabs defaultValue="draft" className="w-full">
-              <TabsList className="grid w-full grid-cols-3">
-                <TabsTrigger value="draft">
-                  Entwurf{draftEinsaetze.length > 0 && ` (${draftEinsaetze.length})`}
-                </TabsTrigger>
-                <TabsTrigger value="planned">
-                  Geplant{plannedEinsaetze.length > 0 && ` (${plannedEinsaetze.length})`}
-                </TabsTrigger>
-                <TabsTrigger value="active">
-                  Aktiv{activeEinsaetze.length > 0 && ` (${activeEinsaetze.length})`}
-                </TabsTrigger>
+            <Tabs defaultValue="Draft" className="w-full">
+              <TabsList className="grid w-full grid-cols-2 sm:grid-cols-3 lg:grid-cols-6">
+                {SHIFT_STATUS_ORDER.map((status) => {
+                  const config = SHIFT_STATUS_CONFIG[status]
+                  const count = shiftsByStatus[status].length
+                  return (
+                    <TabsTrigger key={status} value={status}>
+                      {config.collectionLabel}{count > 0 && ` (${count})`}
+                    </TabsTrigger>
+                  )
+                })}
               </TabsList>
 
-              <TabsContent value="draft" className="mt-6">
-                {isLoading ? (
-                  <div style={{ textAlign: "center", padding: "2rem", color: "hsl(var(--muted-foreground))", fontSize: "0.85rem" }}>
-                    Laden...
-                  </div>
-                ) : draftEinsaetze.length === 0 ? (
-                  <EmptyState label="Entwürfe" showCreate />
-                ) : (
-                  <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-                    {draftEinsaetze.map((e) => (
-                      <ShiftCard key={e.id} shift={e} onView={(id) => router.push(`/coordinator/shifts/${id}`)} />
-                    ))}
-                  </div>
-                )}
-              </TabsContent>
-
-              <TabsContent value="planned" className="mt-6">
-                {isLoading ? (
-                  <div style={{ textAlign: "center", padding: "2rem", color: "hsl(var(--muted-foreground))", fontSize: "0.85rem" }}>Laden...</div>
-                ) : plannedEinsaetze.length === 0 ? (
-                  <EmptyState label="geplante Einsätze" />
-                ) : (
-                  <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-                    {plannedEinsaetze.map((e) => (
-                      <ShiftCard key={e.id} shift={e} onView={(id) => router.push(`/coordinator/shifts/${id}`)} />
-                    ))}
-                  </div>
-                )}
-              </TabsContent>
-
-              <TabsContent value="active" className="mt-6">
-                {isLoading ? (
-                  <div style={{ textAlign: "center", padding: "2rem", color: "hsl(var(--muted-foreground))", fontSize: "0.85rem" }}>Laden...</div>
-                ) : activeEinsaetze.length === 0 ? (
-                  <EmptyState label="aktive Einsätze" />
-                ) : (
-                  <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-                    {activeEinsaetze.map((e) => (
-                      <ShiftCard key={e.id} shift={e} onView={(id) => router.push(`/coordinator/shifts/${id}`)} />
-                    ))}
-                  </div>
-                )}
-              </TabsContent>
+              {SHIFT_STATUS_ORDER.map((status) => {
+                const config = SHIFT_STATUS_CONFIG[status]
+                const statusEinsaetze = shiftsByStatus[status]
+                return (
+                  <TabsContent key={status} value={status} className="mt-6">
+                    {isLoading ? (
+                      <div style={{ textAlign: "center", padding: "2rem", color: "hsl(var(--muted-foreground))", fontSize: "0.85rem" }}>
+                        Laden...
+                      </div>
+                    ) : statusEinsaetze.length === 0 ? (
+                      <EmptyState label={config.emptyLabel} showCreate={status === "Draft"} />
+                    ) : (
+                      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+                        {statusEinsaetze.map((einsatz) => (
+                          <ShiftCard key={einsatz.id} shift={einsatz} onView={(id) => router.push(`/coordinator/shifts/${id}`)} />
+                        ))}
+                      </div>
+                    )}
+                  </TabsContent>
+                )
+              })}
             </Tabs>
           </CardContent>
         </Card>
