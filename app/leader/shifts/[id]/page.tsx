@@ -7,7 +7,7 @@ import { RoleBadge } from "@/components/role-badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { useToast } from "@/hooks/use-toast"
-import { apiGet, apiPut } from "@/lib/apiClient"
+import { ApiError, apiGet, apiPut } from "@/lib/apiClient"
 import { getAuthUser } from "@/lib/auth"
 import type { ShiftDetails, ConfirmationStatus } from "@/lib/types"
 import { participantDisplayName } from "@/lib/types"
@@ -66,6 +66,8 @@ function LeaderShiftDetailsContent({ shiftId }: { shiftId: string }) {
   const [shift, setShift] = useState<ShiftDetails | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [isResponding, setIsResponding] = useState(false)
+  const [isStarting, setIsStarting] = useState(false)
+  const [isCompleting, setIsCompleting] = useState(false)
   const user = getAuthUser()
 
   useEffect(() => {
@@ -109,6 +111,44 @@ function LeaderShiftDetailsContent({ shiftId }: { shiftId: string }) {
     }
   }
 
+  async function handleStart() {
+    setIsStarting(true)
+    try {
+      await apiPut(`/api/shifts/${shiftId}/start`)
+      toast({ title: "Einsatz gestartet", description: "Der Einsatz ist jetzt aktiv." })
+      await loadShift()
+    } catch (error) {
+      toast({
+        title: "Fehler",
+        description: error instanceof ApiError && error.status === 403
+          ? "Nur der Leader dieses Einsatzes darf starten bzw. beenden."
+          : error instanceof Error ? error.message : "Einsatz konnte nicht gestartet werden.",
+        variant: "destructive",
+      })
+    } finally {
+      setIsStarting(false)
+    }
+  }
+
+  async function handleComplete() {
+    setIsCompleting(true)
+    try {
+      await apiPut(`/api/shifts/${shiftId}/complete`)
+      toast({ title: "Einsatz abgeschlossen", description: "Der Einsatz wurde erfolgreich abgeschlossen." })
+      await loadShift()
+    } catch (error) {
+      toast({
+        title: "Fehler",
+        description: error instanceof ApiError && error.status === 403
+          ? "Nur der Leader dieses Einsatzes darf starten bzw. beenden."
+          : error instanceof Error ? error.message : "Einsatz konnte nicht abgeschlossen werden.",
+        variant: "destructive",
+      })
+    } finally {
+      setIsCompleting(false)
+    }
+  }
+
   if (isLoading) {
     return (
       <div style={{ minHeight: "100vh", display: "flex", flexDirection: "column" }}>
@@ -136,6 +176,10 @@ function LeaderShiftDetailsContent({ shiftId }: { shiftId: string }) {
   const myParticipant = shift.participants.find(
     (p) => p.userId.toLowerCase() === user?.userId?.toLowerCase()
   )
+  const isLeader = myParticipant?.role === "Leader"
+  const canStart = isLeader && shift.status === "Planned"
+  const canComplete = isLeader && shift.status === "Active"
+  const isBusy = isResponding || isStarting || isCompleting
 
   return (
     <div
@@ -163,7 +207,7 @@ function LeaderShiftDetailsContent({ shiftId }: { shiftId: string }) {
         }}
       />
 
-      <DashboardHeader section="Leader" isLoading={isLoading || isResponding} />
+      <DashboardHeader section="Leader" isLoading={isLoading || isBusy} />
 
       <main className="container mx-auto px-3 sm:px-6 py-8" style={{ position: "relative", zIndex: 1, flex: 1 }}>
         <Button variant="ghost" onClick={() => router.back()} className="mb-4" style={{ gap: "0.4rem", fontSize: "0.85rem" }}>
@@ -256,7 +300,7 @@ function LeaderShiftDetailsContent({ shiftId }: { shiftId: string }) {
             <div className="flex flex-col sm:flex-row gap-3">
               <AlertDialog>
                 <AlertDialogTrigger asChild>
-                  <Button disabled={isResponding} className="flex-1" size="lg">
+                  <Button disabled={isBusy} className="flex-1" size="lg">
                     {isResponding ? "Wird verarbeitet..." : "Annehmen"}
                   </Button>
                 </AlertDialogTrigger>
@@ -276,7 +320,7 @@ function LeaderShiftDetailsContent({ shiftId }: { shiftId: string }) {
 
               <AlertDialog>
                 <AlertDialogTrigger asChild>
-                  <Button variant="destructive" disabled={isResponding} className="flex-1" size="lg">
+                  <Button variant="destructive" disabled={isBusy} className="flex-1" size="lg">
                     {isResponding ? "Wird verarbeitet..." : "Ablehnen"}
                   </Button>
                 </AlertDialogTrigger>
@@ -294,6 +338,51 @@ function LeaderShiftDetailsContent({ shiftId }: { shiftId: string }) {
                 </AlertDialogContent>
               </AlertDialog>
             </div>
+          )}
+
+          {/* Leader-only: Start/Complete shift */}
+          {canStart && (
+            <AlertDialog>
+              <AlertDialogTrigger asChild>
+                <Button disabled={isBusy} className="w-full" size="lg">
+                  {isStarting ? "Wird gestartet..." : "Einsatz starten"}
+                </Button>
+              </AlertDialogTrigger>
+              <AlertDialogContent>
+                <AlertDialogHeader>
+                  <AlertDialogTitle>Einsatz starten?</AlertDialogTitle>
+                  <AlertDialogDescription>
+                    Der Einsatz wird auf „Aktiv" gesetzt.
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel>Abbrechen</AlertDialogCancel>
+                  <AlertDialogAction onClick={handleStart}>Starten</AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
+          )}
+
+          {canComplete && (
+            <AlertDialog>
+              <AlertDialogTrigger asChild>
+                <Button disabled={isBusy} className="w-full" size="lg">
+                  {isCompleting ? "Wird abgeschlossen..." : "Einsatz beenden"}
+                </Button>
+              </AlertDialogTrigger>
+              <AlertDialogContent>
+                <AlertDialogHeader>
+                  <AlertDialogTitle>Einsatz beenden?</AlertDialogTitle>
+                  <AlertDialogDescription>
+                    Der Einsatz wird als abgeschlossen markiert. Diese Aktion kann nicht rückgängig gemacht werden.
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel>Abbrechen</AlertDialogCancel>
+                  <AlertDialogAction onClick={handleComplete}>Beenden</AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
           )}
 
           {shift.status === "Active" && myParticipant && (

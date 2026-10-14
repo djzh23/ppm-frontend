@@ -13,14 +13,21 @@ import {
 } from "@/components/ui/dialog"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Label } from "@/components/ui/label"
-import type { User } from "@/lib/types"
+import type { User, UserRoleValue } from "@/lib/types"
 import { roleToName } from "@/lib/roles"
 
 type RoleName = "Admin" | "Coordinator" | "Festmitarbeiter" | "Honorarkraft"
 
 const ROLE_OPTIONS: RoleName[] = ["Admin", "Coordinator", "Festmitarbeiter", "Honorarkraft"]
 
-function normalizeToRoleName(value: unknown): RoleName | "" {
+const ROLE_LABELS: Record<RoleName, string> = {
+  Admin: "Admin",
+  Coordinator: "Koordinator",
+  Festmitarbeiter: "Festmitarbeiter",
+  Honorarkraft: "Honorarkraft",
+}
+
+function normalizeToRoleName(value: UserRoleValue | undefined | null): RoleName | "" {
   // Accept:
   // - "Admin"
   // - 1 / "1" (mapped via roleToName)
@@ -62,7 +69,7 @@ export function AssignRoleDialog({ user, onAssignRole, isLoading }: AssignRoleDi
     setOpen(false)
   }
 
-  const buttonLabel = initialRole ? "Change Role" : "Assign Role"
+  const buttonLabel = initialRole ? "Rolle ändern" : "Rolle zuweisen"
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
@@ -74,26 +81,27 @@ export function AssignRoleDialog({ user, onAssignRole, isLoading }: AssignRoleDi
 
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Assign Role</DialogTitle>
+          <DialogTitle>Rolle zuweisen</DialogTitle>
           <DialogDescription>
-            Assign a role to {user.firstname} {user.lastname}
+            Weise {user.firstname} {user.lastname} eine Rolle zu
           </DialogDescription>
         </DialogHeader>
 
         <div className="grid gap-4 py-4">
           <div className="grid gap-2">
-            <Label htmlFor="role">Role</Label>
+            <Label htmlFor="role">Rolle</Label>
 
             <Select value={selectedRole} onValueChange={(v) => setSelectedRole(v as RoleName)}>
               <SelectTrigger id="role">
-                <SelectValue placeholder="Select a role" />
+                <SelectValue placeholder="Rolle auswählen" />
               </SelectTrigger>
 
               <SelectContent>
-                <SelectItem value="Admin">Admin</SelectItem>
-                <SelectItem value="Coordinator">Coordinator</SelectItem>
-                <SelectItem value="Festmitarbeiter">Festmitarbeiter</SelectItem>
-                <SelectItem value="Honorarkraft">Honorarkraft</SelectItem>
+                {ROLE_OPTIONS.map((role) => (
+                  <SelectItem key={role} value={role}>
+                    {ROLE_LABELS[role]}
+                  </SelectItem>
+                ))}
               </SelectContent>
             </Select>
           </div>
@@ -101,10 +109,10 @@ export function AssignRoleDialog({ user, onAssignRole, isLoading }: AssignRoleDi
 
         <DialogFooter>
           <Button variant="outline" onClick={() => setOpen(false)} disabled={isLoading}>
-            Cancel
+            Abbrechen
           </Button>
           <Button onClick={handleSubmit} disabled={!selectedRole || isLoading}>
-            Assign Role
+            Rolle zuweisen
           </Button>
         </DialogFooter>
       </DialogContent>

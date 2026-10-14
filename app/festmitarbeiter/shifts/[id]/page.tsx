@@ -81,6 +81,8 @@ function FestmitarbeiterShiftDetailsContent({ shiftId }: { shiftId: string }) {
   const [isProposing, setIsProposing] = useState(false)
   const [isResponding, setIsResponding] = useState(false)
   const [isCancelling, setIsCancelling] = useState(false)
+  const [isStarting, setIsStarting] = useState(false)
+  const [isCompleting, setIsCompleting] = useState(false)
   const user = getAuthUser()
   const userRole = getUserRole()
   const section = userRole === "Honorarkraft" ? "Honorarkraft" : "Festmitarbeiter"
@@ -173,6 +175,44 @@ function FestmitarbeiterShiftDetailsContent({ shiftId }: { shiftId: string }) {
     }
   }
 
+  async function handleStart() {
+    setIsStarting(true)
+    try {
+      await apiPut(`/api/shifts/${shiftId}/start`)
+      toast({ title: "Einsatz gestartet", description: "Der Einsatz ist jetzt aktiv." })
+      await loadShift()
+    } catch (error) {
+      toast({
+        title: "Fehler",
+        description: error instanceof ApiError && error.status === 403
+          ? "Nur der Leader dieses Einsatzes darf starten bzw. beenden."
+          : error instanceof Error ? error.message : "Einsatz konnte nicht gestartet werden.",
+        variant: "destructive",
+      })
+    } finally {
+      setIsStarting(false)
+    }
+  }
+
+  async function handleComplete() {
+    setIsCompleting(true)
+    try {
+      await apiPut(`/api/shifts/${shiftId}/complete`)
+      toast({ title: "Einsatz abgeschlossen", description: "Der Einsatz wurde erfolgreich abgeschlossen." })
+      await loadShift()
+    } catch (error) {
+      toast({
+        title: "Fehler",
+        description: error instanceof ApiError && error.status === 403
+          ? "Nur der Leader dieses Einsatzes darf starten bzw. beenden."
+          : error instanceof Error ? error.message : "Einsatz konnte nicht abgeschlossen werden.",
+        variant: "destructive",
+      })
+    } finally {
+      setIsCompleting(false)
+    }
+  }
+
   async function openAddParticipantDialog() {
     if (!shift) return
     setShowAddParticipant(true)
@@ -256,9 +296,13 @@ function FestmitarbeiterShiftDetailsContent({ shiftId }: { shiftId: string }) {
   )
   const isLeader = myParticipant?.role === "Leader"
   const canModify = shift.status === "Draft" || shift.status === "PendingApproval"
-  const isBusy = isProposing || isResponding || isCancelling
+  const canStart = isLeader && shift.status === "Planned"
+  const canComplete = isLeader && shift.status === "Active"
+  const isBusy = isProposing || isResponding || isCancelling || isStarting || isCompleting
   const hasAnyAction =
     (isLeader && canModify) ||
+    canStart ||
+    canComplete ||
     (myParticipant?.confirmationStatus === "Invited" && shift.status === "PendingApproval")
 
   return (
@@ -496,6 +540,51 @@ function FestmitarbeiterShiftDetailsContent({ shiftId }: { shiftId: string }) {
                 <AlertDialogFooter>
                   <AlertDialogCancel>Abbrechen</AlertDialogCancel>
                   <AlertDialogAction onClick={handleCancel}>Absagen</AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
+          )}
+
+          {/* Leader-only: Start/Complete shift */}
+          {canStart && (
+            <AlertDialog>
+              <AlertDialogTrigger asChild>
+                <Button disabled={isBusy} className="w-full" size="lg">
+                  {isStarting ? "Wird gestartet..." : "Einsatz starten"}
+                </Button>
+              </AlertDialogTrigger>
+              <AlertDialogContent>
+                <AlertDialogHeader>
+                  <AlertDialogTitle>Einsatz starten?</AlertDialogTitle>
+                  <AlertDialogDescription>
+                    Der Einsatz wird auf „Aktiv" gesetzt.
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel>Abbrechen</AlertDialogCancel>
+                  <AlertDialogAction onClick={handleStart}>Starten</AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
+          )}
+
+          {canComplete && (
+            <AlertDialog>
+              <AlertDialogTrigger asChild>
+                <Button disabled={isBusy} className="w-full" size="lg">
+                  {isCompleting ? "Wird abgeschlossen..." : "Einsatz beenden"}
+                </Button>
+              </AlertDialogTrigger>
+              <AlertDialogContent>
+                <AlertDialogHeader>
+                  <AlertDialogTitle>Einsatz beenden?</AlertDialogTitle>
+                  <AlertDialogDescription>
+                    Der Einsatz wird als abgeschlossen markiert. Diese Aktion kann nicht rückgängig gemacht werden.
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel>Abbrechen</AlertDialogCancel>
+                  <AlertDialogAction onClick={handleComplete}>Beenden</AlertDialogAction>
                 </AlertDialogFooter>
               </AlertDialogContent>
             </AlertDialog>

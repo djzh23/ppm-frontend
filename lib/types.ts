@@ -1,5 +1,5 @@
 export type UserRoleName = "Admin" | "Coordinator" | "Festmitarbeiter" | "Honorarkraft"
-export type UserRoleValue = UserRoleName
+export type UserRoleValue = UserRoleName | number | string
 
 export type ShiftStatus = "Draft" | "PendingApproval" | "Planned" | "Active" | "Completed" | "Cancelled"
 export type ConfirmationStatus = "Invited" | "Accepted" | "Declined"
