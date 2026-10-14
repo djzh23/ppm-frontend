@@ -37,10 +37,10 @@ The frontend reflects a multi-role shift planning flow:
 
 | Layer | Technology |
 |---|---|
-| Framework | Next.js 15 (App Router) |
+| Framework | Next.js 16 (App Router) |
 | Language | TypeScript 5 |
-| UI | shadcn/ui, Radix UI |
-| Styling | Tailwind CSS |
+| UI | React 19, shadcn/ui, Radix UI |
+| Styling | Tailwind CSS 4 |
 | Auth | JWT (Bearer token) |
 | Deployment | Vercel |
 
@@ -69,9 +69,10 @@ NEXT_PUBLIC_API_BASE_URL=http://localhost:5105
 
 The app connects to the live API by default if the variable is not set. Demo accounts (password: `Pass123$`):
 
+The Admin account is not publicly available.
+
 | Email | Role |
 |---|---|
-| `admin@test.com` | Admin |
 | `koord1@test.com` | Coordinator |
 | `fest1@test.com` | Festmitarbeiter |
 | `hon1@test.com` | Honorarkraft |
