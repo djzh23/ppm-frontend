@@ -1,5 +1,7 @@
 # PPM Next.js Client
 
+[![CI](https://github.com/djzh23/ppmv2-next-frontend/actions/workflows/ci.yml/badge.svg)](https://github.com/djzh23/ppmv2-next-frontend/actions/workflows/ci.yml)
+
 This is the web frontend for **PPM V2**, a shift and team management system built on a .NET REST API.
 
 The backend is designed to be client-agnostic. This Next.js app is one possible client, chosen for rapid prototyping and to demonstrate modern frontend development alongside the .NET backend. A future client is planned as a .NET MAUI Blazor Hybrid app.
@@ -18,7 +20,7 @@ The frontend reflects a multi-role shift planning flow:
 2. **Leader** sees the Draft shift in their Leader Inbox, adds team members from available staff, and proposes the team when ready.
 3. **Team members** receive the shift invitation (`PendingApproval`) and can accept or decline.
 4. Once **all members accept**, the shift auto-transitions to `Planned`.
-5. **Coordinator** sees the assembled team and starts the shift (`Active`), then eventually completes it.
+5. **Leader** starts the shift (`Active`) and completes it when finished. The **Coordinator** sees the status and team, and can cancel the shift.
 
 ---
 
@@ -48,7 +50,7 @@ The frontend reflects a multi-role shift planning flow:
 
 ## Local Development
 
-**Prerequisites:** Node.js 18+, running PPM V2 backend (default: `http://localhost:5105`)
+**Prerequisites:** Node.js 20+, running PPM V2 backend (default: `http://localhost:5105`)
 
 ```bash
 # 1. Install dependencies
@@ -67,7 +69,9 @@ npm run dev
 NEXT_PUBLIC_API_BASE_URL=http://localhost:5105
 ```
 
-The app connects to the live API by default if the variable is not set. Demo accounts (password: `Pass123$`):
+Without `NEXT_PUBLIC_API_BASE_URL`, the app fails to start with an error message.
+
+Demo accounts (password: `Pass123$`):
 
 The Admin account is not publicly available.
 

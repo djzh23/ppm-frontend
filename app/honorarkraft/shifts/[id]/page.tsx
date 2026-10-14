@@ -17,7 +17,7 @@ import { CONFIRMATION_STATUS_CONFIG } from "@/lib/status-config"
 import { DashboardHeader } from "@/components/dashboard-header"
 import { DashboardFooter } from "@/components/dashboard-footer"
 import { ArrowLeft, Calendar, MapPin, Users } from "lucide-react"
-import { format } from "date-fns"
+import { formatDateTime } from "@/lib/format"
 import {
   AlertDialog,
   AlertDialogAction,
@@ -243,14 +243,14 @@ function HonorarkraftShiftDetailsContent({ shiftId }: { shiftId: string }) {
                 <Calendar className="h-5 w-5 mr-3 text-muted-foreground" />
                 <div>
                   <p className="font-medium">Beginn</p>
-                  <p className="text-sm text-muted-foreground">{format(new Date(shift.startAtUtc), "PPpp")}</p>
+                  <p className="text-sm text-muted-foreground">{formatDateTime(shift.startAtUtc)}</p>
                 </div>
               </div>
               <div className="flex items-center">
                 <Calendar className="h-5 w-5 mr-3 text-muted-foreground" />
                 <div>
                   <p className="font-medium">Ende</p>
-                  <p className="text-sm text-muted-foreground">{format(new Date(shift.endAtUtc), "PPpp")}</p>
+                  <p className="text-sm text-muted-foreground">{formatDateTime(shift.endAtUtc)}</p>
                 </div>
               </div>
             </CardContent>

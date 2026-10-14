@@ -5,7 +5,7 @@ import "./globals.css"
 
 export const metadata: Metadata = {
   title: "PPM – Shift Management",
-  description: "Manage assignments and shifts efficiently",
+  description: "Einsatz- und Schichtplanung für Vereine",
   icons: {
     icon: [
       {
@@ -31,7 +31,7 @@ export default function RootLayout({
   children: React.ReactNode
 }>) {
   return (
-    <html lang="en">
+    <html lang="de">
       <body className={`font-[Inter] antialiased`}>
         {children}
         <Toaster />
