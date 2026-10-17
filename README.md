@@ -35,6 +35,24 @@ The frontend reflects a multi-role shift planning flow:
 
 ---
 
+## Screenshots
+
+Live demo, October 2026.
+
+![Login](public/screenshots/login.png)
+
+![Coordinator shifts](public/screenshots/coordinator-shifts.png)
+
+![Shift detail](public/screenshots/coordinator-weidengrund.png)
+
+![Team](public/screenshots/coordinator-team.png)
+
+![Festmitarbeiter shifts](public/screenshots/festmitarbeiter-shifts.png)
+
+![Honorarkraft shifts](public/screenshots/honorarkraft-shifts.png)
+
+---
+
 ## Tech Stack
 
 | Layer | Technology |
@@ -77,9 +95,9 @@ The Admin account is not publicly available.
 
 | Email | Role |
 |---|---|
-| `koord1@test.com` | Coordinator |
-| `fest1@test.com` | Festmitarbeiter |
-| `hon1@test.com` | Honorarkraft |
+| `lena.hartung@example.com` | Coordinator |
+| `tim.adler@example.com` | Festmitarbeiter |
+| `nora.feld@example.com` | Honorarkraft |
 
 ---
 
