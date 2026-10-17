@@ -51,6 +51,8 @@ Live demo, October 2026.
 
 ![Honorarkraft shifts](public/screenshots/honorarkraft-shifts.png)
 
+![Admin users](public/screenshots/Admin-Dashboard-2-ppm.png)
+
 ---
 
 ## Tech Stack
