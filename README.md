@@ -45,8 +45,6 @@ Live demo, October 2026.
 
 ![Shift detail](public/screenshots/coordinator-weidengrund.png)
 
-![Team](public/screenshots/coordinator-team.png)
-
 ![Festmitarbeiter shifts](public/screenshots/festmitarbeiter-shifts.png)
 
 ![Honorarkraft shifts](public/screenshots/honorarkraft-shifts.png)
