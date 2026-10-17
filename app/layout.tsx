@@ -4,7 +4,7 @@ import { Toaster } from "@/components/ui/toaster"
 import "./globals.css"
 
 export const metadata: Metadata = {
-  title: "PPM – Shift Management",
+  title: "Play Pal Manager",
   description: "Einsatz- und Schichtplanung für Vereine",
   icons: {
     icon: [
