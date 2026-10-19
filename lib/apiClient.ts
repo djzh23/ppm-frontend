@@ -100,7 +100,7 @@ async function fetchWithAuth(endpoint: string, options: RequestInit = {}): Promi
     })
 
     if (response.status === 401) {
-      if (isBrowser()) {
+      if (isBrowser() && endpoint !== "/api/auth/login") {
         const refreshToken = localStorage.getItem("refreshToken")
         // Avoid infinite loop: never attempt refresh on the refresh endpoint itself
         if (refreshToken && endpoint !== "/api/auth/refresh") {
