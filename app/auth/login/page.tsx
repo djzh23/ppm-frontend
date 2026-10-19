@@ -5,6 +5,8 @@ import { useState } from "react"
 import { useRouter } from "next/navigation"
 import { login } from "@/lib/auth"
 import { ApiError } from "@/lib/apiClient"
+import { BackToHome } from "@/components/back-to-home"
+import { LoginIllustration } from "@/components/login-illustration"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -18,35 +20,13 @@ import {
 import { useToast } from "@/hooks/use-toast"
 import Link from "next/link"
 
-const features = [
-  {
-    icon: "⬡",
-    title: "Rollenbasierter Zugriff",
-    sub: "Admin · Koordinator · Leader",
-  },
-  {
-    icon: "→",
-    title: "Einsatz-Workflow",
-    sub: "Entwurf → Geplant → Aktiv",
-  },
-  {
-    icon: "✓",
-    title: "Benutzerverwaltung",
-    sub: "Registrierung mit Admin-Freigabe",
-  },
-  {
-    icon: "◫",
-    title: "Leader-Inbox",
-    sub: "Zuweisungen einsehen und annehmen",
-  },
-]
-
 export default function LoginPage() {
   const router = useRouter()
   const { toast } = useToast()
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const [isLoading, setIsLoading] = useState(false)
+  const [eyesClosed, setEyesClosed] = useState(false)
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
@@ -73,10 +53,8 @@ export default function LoginPage() {
 
   return (
     <div
-      className="min-h-screen flex p-4"
+      className="relative flex min-h-screen flex-col overflow-x-hidden"
       style={{
-        position: "relative",
-        overflow: "hidden",
         backgroundColor: "hsl(var(--background))",
       }}
     >
@@ -106,146 +84,32 @@ export default function LoginPage() {
         }}
       />
 
-      {/* ── Linke Spalte ── */}
-      <div
-        className="hidden md:flex flex-col justify-center"
-        style={{
-          position: "relative",
-          zIndex: 2,
-          flex: "0 0 45%",
-          paddingLeft: "clamp(2rem, 6vw, 5rem)",
-          paddingRight: "2rem",
-        }}
-      >
-        {/* Wortmarke */}
-        <div style={{ marginBottom: "1.75rem" }}>
-          <span
-            style={{
-              fontFamily: "'Space Grotesk', 'Inter', sans-serif",
-              fontSize: "clamp(2rem, 3.5vw, 3rem)",
-              fontWeight: 700,
-              letterSpacing: "-0.03em",
-              lineHeight: 1,
-              color: "hsl(var(--foreground))",
-              display: "block",
-            }}
-          >
-            PPM - Play Pal Manager Für Verein
-          </span>
-          <span
-            style={{
-              fontFamily: "'Space Grotesk', 'Inter', sans-serif",
-              fontSize: "0.72rem",
-              fontWeight: 400,
-              letterSpacing: "0.2em",
-              textTransform: "uppercase" as const,
-              color: "hsl(var(--muted-foreground))",
-              display: "block",
-              marginTop: "0.4rem",
-            }}
-          >
-            Shift Management System
-          </span>
-        </div>
-
-        {/* Trennlinie */}
-        <div
-          style={{
-            width: "2rem",
-            height: "1px",
-            backgroundColor: "hsl(var(--border))",
-            marginBottom: "1.5rem",
-          }}
-        />
-
-        {/* Kurzbeschreibung */}
-        <p
-          style={{
-            fontSize: "0.9rem",
-            lineHeight: 1.75,
-            color: "hsl(var(--muted-foreground))",
-            maxWidth: "340px",
-            marginBottom: "2rem",
-          }}
-        >
-          Zentrales System zur Verwaltung von Einsätzen, Teams und Rollen —
-          für Koordinatoren, Leader und Mitarbeiter in einer Anwendung.
-        </p>
-
-        {/* Feature-Karten */}
-        <div
-          style={{
-            display: "grid",
-            gridTemplateColumns: "1fr 1fr",
-            gap: "10px",
-            maxWidth: "380px",
-          }}
-        >
-          {features.map(({ icon, title, sub }) => (
-            <div
-              key={title}
-              style={{
-                backgroundColor: "hsl(var(--card))",
-                border: "0.5px solid hsl(var(--border))",
-                borderRadius: "10px",
-                padding: "0.85rem 1rem",
-                display: "flex",
-                flexDirection: "column" as const,
-                gap: "0.5rem",
-              }}
-            >
-              {/* Icon-Badge */}
-              <div
-                style={{
-                  width: "28px",
-                  height: "28px",
-                  borderRadius: "7px",
-                  backgroundColor: "hsl(var(--secondary))",
-                  border: "0.5px solid hsl(var(--border))",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  fontSize: "13px",
-                  color: "hsl(var(--foreground))",
-                  fontWeight: 500,
-                }}
-              >
-                {icon}
-              </div>
-              {/* Texte */}
-              <div>
-                <div
-                  style={{
-                    fontSize: "0.78rem",
-                    fontWeight: 600,
-                    color: "hsl(var(--foreground))",
-                    lineHeight: 1.3,
-                  }}
-                >
-                  {title}
-                </div>
-                <div
-                  style={{
-                    fontSize: "0.7rem",
-                    color: "hsl(var(--muted-foreground))",
-                    marginTop: "2px",
-                    lineHeight: 1.4,
-                  }}
-                >
-                  {sub}
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
+      <div className="relative z-[2] px-[clamp(1.5rem,5vw,4rem)] pt-5">
+        <BackToHome />
       </div>
 
-      {/* ── Rechte Spalte — Login-Card ── */}
-      <div
-        className="flex flex-1 items-center justify-center"
-        style={{ position: "relative", zIndex: 2 }}
-      >
-        <Card className="w-full max-w-md shadow-lg">
+      <div className="relative z-[2] flex flex-1 flex-col items-center justify-center px-6 py-8">
+        <div className="flex w-full max-w-5xl flex-col gap-16 md:flex-row md:items-center md:justify-between">
+          <div className="w-full md:w-[340px] md:shrink-0">
+            <p
+              className="mb-3 text-[11px] font-normal uppercase tracking-[0.2em] text-muted-foreground"
+              style={{ fontFamily: "'Space Grotesk', 'Inter', sans-serif" }}
+            >
+              Shift Management System
+            </p>
+            <h1
+              className="text-[36px] font-bold leading-[1.1] tracking-[-0.03em] text-foreground"
+              style={{ fontFamily: "'Space Grotesk', 'Inter', sans-serif" }}
+            >
+              Play Pal Manager
+            </h1>
+            <p className="mt-3 text-[14.5px] leading-[1.65] text-muted-foreground">
+              Melde dich an, um loszulegen.
+            </p>
+          </div>
+
+          <div className="w-full shrink-0 md:w-[28rem]">
+          <Card className="w-full max-w-md shadow-lg">
           <CardHeader className="space-y-1">
             <CardTitle className="text-2xl font-bold">Anmelden</CardTitle>
             <CardDescription>
@@ -273,6 +137,8 @@ export default function LoginPage() {
                   type="password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
+                  onFocus={() => setEyesClosed(true)}
+                  onBlur={() => setEyesClosed(false)}
                   required
                   disabled={isLoading}
                 />
@@ -291,8 +157,11 @@ export default function LoginPage() {
               </Link>
             </div>
           </CardContent>
-        </Card>
+          </Card>
+          </div>
+        </div>
       </div>
+      <LoginIllustration className="relative z-[2] mb-10 mt-8" eyesClosed={eyesClosed} />
     </div>
   )
 }

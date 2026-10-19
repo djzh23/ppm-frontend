@@ -5,30 +5,9 @@ import { useRouter } from "next/navigation"
 import { getUserRole, isAuthenticated } from "@/lib/auth"
 import { Button } from "@/components/ui/button"
 import Link from "next/link"
-import { ArrowRight, Users, GitBranch, CheckSquare, Inbox } from "lucide-react"
-
-const features = [
-  {
-    icon: Users,
-    title: "Rollenbasierter Zugriff",
-    sub: "Admin · Koordinator · Festmitarbeiter · Honorarkraft",
-  },
-  {
-    icon: GitBranch,
-    title: "Einsatz-Workflow",
-    sub: "Entwurf → Geplant → Aktiv → Abgeschlossen",
-  },
-  {
-    icon: CheckSquare,
-    title: "Benutzerverwaltung",
-    sub: "Registrierung mit Admin-Freigabe und Rollenzuweisung",
-  },
-  {
-    icon: Inbox,
-    title: "Leader-Inbox",
-    sub: "Zugewiesene Einsätze einsehen und annehmen",
-  },
-]
+import { ArrowRight } from "lucide-react"
+import { LoginIllustration } from "@/components/login-illustration"
+import { productFeatures } from "@/lib/product-features"
 
 export default function HomePage() {
   const router = useRouter()
@@ -79,7 +58,7 @@ export default function HomePage() {
         display: "flex",
         flexDirection: "column",
         position: "relative",
-        overflow: "hidden",
+        overflowX: "hidden",
         backgroundColor: "hsl(var(--background))",
       }}
     >
@@ -131,155 +110,41 @@ export default function HomePage() {
         </div>
       </nav>
 
-      {/* Hero */}
-      <main
-        style={{
-          flex: 1,
-          position: "relative",
-          zIndex: 1,
-          display: "flex",
-          flexDirection: "column",
-          alignItems: "center",
-          justifyContent: "center",
-          textAlign: "center",
-          padding: "clamp(3rem, 8vh, 6rem) clamp(1.5rem, 5vw, 4rem)",
-        }}
-      >
-        <div style={{ maxWidth: "680px", width: "100%" }}>
-          {/* Badge */}
-          <div
-            style={{
-              display: "inline-flex",
-              alignItems: "center",
-              gap: "0.4rem",
-              fontSize: "0.72rem",
-              fontWeight: 500,
-              letterSpacing: "0.12em",
-              textTransform: "uppercase",
-              color: "hsl(var(--muted-foreground))",
-              border: "0.5px solid hsl(var(--border))",
-              borderRadius: "999px",
-              padding: "0.3rem 0.85rem",
-              marginBottom: "2rem",
-            }}
-          >
-            Shift Management System
-          </div>
-
-          {/* Headline */}
-          <h1
-            style={{
-              fontFamily: "'Space Grotesk', 'Inter', sans-serif",
-              fontSize: "clamp(2.5rem, 6vw, 4rem)",
-              fontWeight: 700,
-              letterSpacing: "-0.035em",
-              lineHeight: 1.1,
-              color: "hsl(var(--foreground))",
-              marginBottom: "1.25rem",
-            }}
-          >
-            Play Pal Manager
-          </h1>
-
-          <p
-            style={{
-              fontSize: "clamp(0.9rem, 2vw, 1.05rem)",
-              lineHeight: 1.75,
-              color: "hsl(var(--muted-foreground))",
-              marginBottom: "2.5rem",
-              maxWidth: "520px",
-              margin: "0 auto 2.5rem",
-            }}
-          >
-            Zentrales System zur Verwaltung von Einsätzen, Teams und Rollen —
-            für Koordinatoren, Leader und Mitarbeiter in einer Anwendung.
-          </p>
-
-          {/* CTAs */}
-          <div
-            style={{
-              display: "flex",
-              gap: "0.75rem",
-              justifyContent: "center",
-              flexWrap: "wrap",
-              marginBottom: "4rem",
-            }}
-          >
-            <Button size="lg" asChild>
-              <Link href="/auth/login" style={{ display: "flex", alignItems: "center", gap: "0.4rem" }}>
-                Anmelden
-                <ArrowRight style={{ width: "16px", height: "16px" }} />
-              </Link>
-            </Button>
-            <Button size="lg" variant="outline" asChild>
-              <Link href="/auth/register">Konto erstellen</Link>
-            </Button>
-          </div>
-
-          {/* Feature-Karten */}
-          <div
-            style={{
-              display: "grid",
-              gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))",
-              gap: "12px",
-              textAlign: "left",
-            }}
-          >
-            {features.map(({ icon: Icon, title, sub }) => (
-              <div
-                key={title}
-                style={{
-                  backgroundColor: "hsl(var(--card))",
-                  border: "0.5px solid hsl(var(--border))",
-                  borderRadius: "var(--radius)",
-                  padding: "1rem 1.1rem",
-                  display: "flex",
-                  flexDirection: "column",
-                  gap: "0.6rem",
-                }}
-              >
-                <div
-                  style={{
-                    width: "32px",
-                    height: "32px",
-                    borderRadius: "8px",
-                    backgroundColor: "hsl(var(--secondary))",
-                    border: "0.5px solid hsl(var(--border))",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    flexShrink: 0,
-                  }}
-                >
-                  <Icon style={{ width: "15px", height: "15px", color: "hsl(var(--foreground))" }} />
-                </div>
-                <div>
-                  <div
-                    style={{
-                      fontSize: "0.8rem",
-                      fontWeight: 600,
-                      color: "hsl(var(--foreground))",
-                      lineHeight: 1.3,
-                    }}
-                  >
-                    {title}
-                  </div>
-                  <div
-                    style={{
-                      fontSize: "0.72rem",
-                      color: "hsl(var(--muted-foreground))",
-                      marginTop: "3px",
-                      lineHeight: 1.5,
-                    }}
-                  >
-                    {sub}
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
+      <main className="relative z-[1] flex flex-1 flex-col items-center justify-center px-6 py-16 text-center md:py-20">
+        <p className="mb-4 text-[11px] font-medium uppercase tracking-[0.12em] text-muted-foreground">
+          Shift Management System
+        </p>
+        <h1
+          className="text-[36px] font-bold leading-[1.1] tracking-[-0.035em] text-foreground md:text-[56px]"
+          style={{ fontFamily: "'Space Grotesk', 'Inter', sans-serif" }}
+        >
+          Play Pal Manager
+        </h1>
+        <p className="mx-auto mt-4 max-w-md text-[17px] leading-[1.65] text-muted-foreground">
+          Für Vereine: Teams zusammenstellen, Rollen verwalten und Einsätze begleiten.
+        </p>
+        <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
+          <Button size="lg" asChild>
+            <Link href="/auth/login" style={{ display: "flex", alignItems: "center", gap: "0.4rem" }}>
+              Anmelden
+              <ArrowRight style={{ width: "16px", height: "16px" }} />
+            </Link>
+          </Button>
+          <Button size="lg" variant="outline" asChild>
+            <Link href="/auth/register">Konto erstellen</Link>
+          </Button>
         </div>
+        <ul className="mt-10 grid w-full max-w-5xl grid-cols-1 gap-8 border-t border-border pt-6 text-left md:grid-cols-4">
+          {productFeatures.map(({ icon: Icon, title, description }) => (
+            <li key={title}>
+              <Icon aria-hidden="true" size={19} className="text-foreground" />
+              <div className="mt-3 text-sm font-semibold leading-tight text-foreground">{title}</div>
+              <div className="mt-1 text-[13px] leading-snug text-muted-foreground">{description}</div>
+            </li>
+          ))}
+        </ul>
       </main>
+      <LoginIllustration className="relative z-[1] mb-10 mt-8" />
 
       {/* Footer */}
       <footer
@@ -294,7 +159,7 @@ export default function HomePage() {
         }}
       >
         <span style={{ fontSize: "0.72rem", color: "hsl(var(--muted-foreground))" }}>
-          PPM – Play Pal Manager · Shift Management System
+          Play Pal Manager
         </span>
       </footer>
     </div>
