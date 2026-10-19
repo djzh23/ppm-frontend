@@ -1,110 +1,74 @@
-# PPM Next.js Client
+# PPM Frontend
 
-[![CI](https://github.com/djzh23/ppmv2-next-frontend/actions/workflows/ci.yml/badge.svg)](https://github.com/djzh23/ppmv2-next-frontend/actions/workflows/ci.yml)
+[![CI](https://github.com/djzh23/ppm-frontend/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/djzh23/ppm-frontend/actions/workflows/ci.yml)
 
-This is the web frontend for **PPM V2**, a shift and team management system built on a .NET REST API.
+Play Pal Manager (PPM) ist die Weboberfläche für die Einsatzplanung von Vereinen und gehört zum Backend https://github.com/djzh23/ppm-backend.
 
-The backend is designed to be client-agnostic. This Next.js app is one possible client, chosen for rapid prototyping and to demonstrate modern frontend development alongside the .NET backend. A future client is planned as a .NET MAUI Blazor Hybrid app.
+## Demo
 
-**Live Demo:** [ppmv2.vercel.app](https://ppmv2.vercel.app)
-**API:** [ppmv2-hbb4.onrender.com](https://ppmv2-hbb4.onrender.com)
-**Backend repo:** [PpmV2](https://github.com/djzh23/PpmV2) (.NET 10, Clean Architecture)
+Live: https://ppmv2.vercel.app
 
----
+Das Backend läuft im Gratis-Tarif von Render. Nach Inaktivität braucht es etwa 50 Sekunden zum Aufwachen.
 
-## Shift Workflow
+Demo-Zugänge (Passwort: `Pass123$`):
 
-The frontend reflects a multi-role shift planning flow:
-
-1. **Coordinator** creates a shift (title, time, location) and assigns a Festmitarbeiter as Leader. The shift is saved as `Draft`. The Coordinator can also assign themselves as Leader.
-2. **Leader** sees the Draft shift in their Leader Inbox, adds team members from available staff, and proposes the team when ready.
-3. **Team members** receive the shift invitation (`PendingApproval`) and can accept or decline.
-4. Once **all members accept**, the shift auto-transitions to `Planned`.
-5. **Leader** starts the shift (`Active`) and completes it when finished. The **Coordinator** sees the status and team, and can cancel the shift.
-
----
-
-## Features
-
-- **Role-based access control** with four user roles: Admin, Coordinator, Festmitarbeiter, Honorarkraft
-- **Shift workflow** from Draft to Planned, Active, Completed, or Cancelled
-- **User management** with admin approval and role assignment
-- **Coordinator dashboard** to create shifts and assign a Leader
-- **Leader inbox** to manage Draft shifts, add team members, and propose
-- **Staff inbox** for invited members to accept or decline assignments
-
----
+- `lena.hartung@example.com`, Koordinator
+- `tim.adler@example.com`, Festmitarbeiter
+- `nora.feld@example.com`, Honorarkraft
 
 ## Screenshots
 
-Live demo, October 2026.
-
 ![Login](public/screenshots/login.png)
 
-![Coordinator shifts](public/screenshots/coordinator-shifts.png)
+## Funktionen
 
-![Shift detail](public/screenshots/coordinator-weidengrund.png)
+Admin prüft Registrierungen, gibt sie frei oder lehnt sie ab und weist Rollen zu.
 
-![Festmitarbeiter shifts](public/screenshots/festmitarbeiter-shifts.png)
+Koordinator legt Einsätze an, pflegt Unterkünfte und Teamzuweisungen, genehmigt Vorschläge und kann Einsätze stornieren.
 
-![Honorarkraft shifts](public/screenshots/honorarkraft-shifts.png)
+Festmitarbeiter sieht zugewiesene Einsätze, nimmt Einladungen an oder lehnt sie ab.
 
-![Admin users](public/screenshots/Admin-Dashboard-2-ppm.png)
+Honorarkraft sieht zugewiesene Einsätze, nimmt Einladungen an oder lehnt sie ab.
 
----
+Leader (Festmitarbeiter oder Honorarkraft) schlägt das Team vor, startet den Einsatz und beendet ihn.
 
-## Tech Stack
+Anmeldung per JWT mit automatischer Token-Erneuerung.
 
-| Layer | Technology |
-|---|---|
-| Framework | Next.js 16 (App Router) |
-| Language | TypeScript 5 |
-| UI | React 19, shadcn/ui, Radix UI |
-| Styling | Tailwind CSS 4 |
-| Auth | JWT (Bearer token) |
-| Deployment | Vercel |
+Status in der Oberfläche: Entwurf, Zur Genehmigung, Geplant, Aktiv, Abgeschlossen, Storniert.
 
----
+Ablauf eines Einsatzes: Der Koordinator legt ihn als Entwurf an. Der Leader schlägt das Team vor. Der Koordinator genehmigt. Der Leader startet den Einsatz und beendet ihn.
 
-## Local Development
+## Stack
 
-**Prerequisites:** Node.js 20+, running PPM V2 backend (default: `http://localhost:5105`)
+Next.js 16, React 19, TypeScript 5, Tailwind CSS 4, shadcn/ui mit Radix UI.
+
+## Starten
+
+Node.js 22 oder neuer.
 
 ```bash
-# 1. Install dependencies
 npm install
-
-# 2. Create environment file
 cp .env.example .env.local
-
-# 3. Start dev server
 npm run dev
 ```
 
-`.env.local` requires one variable:
+In `.env.local` muss `NEXT_PUBLIC_API_BASE_URL` stehen. Der Entwicklungsserver nutzt Port 3000. Fehlt die Variable, bleibt der Start still. Der Fehler erscheint erst beim ersten Request.
 
-```env
-NEXT_PUBLIC_API_BASE_URL=http://localhost:5105
-```
+Das Backend ppm-backend muss erreichbar sein.
 
-Without `NEXT_PUBLIC_API_BASE_URL`, the app fails to start with an error message.
+## Qualität
 
-Demo accounts (password: `Pass123$`):
+Die CI auf `main` führt Typecheck und Build aus. Es gibt keine automatisierten Tests und keinen Linter.
 
-The Admin account is not publicly available.
+## Bekannte Grenzen und Roadmap
 
-| Email | Role |
-|---|---|
-| `lena.hartung@example.com` | Coordinator |
-| `tim.adler@example.com` | Festmitarbeiter |
-| `nora.feld@example.com` | Honorarkraft |
+- Tokens liegen in `localStorage`. Roadmap: httpOnly-Cookies über ein Backend-for-Frontend.
+- Die Rollenprüfung im Frontend läuft nur im Client. Roadmap: Prüfung auf dem Server per Middleware.
+- Admin hat keine Menüpunkte zu Team und Unterkünften.
+- Teilnehmer entfernen fehlt.
+- Standorte löschen fehlt.
+- Registrierung und die Forbidden-Seite sind auf Englisch.
 
----
+## Lizenz
 
-## Roadmap
-
-- Notifications: in-app alerts for shift assignments, proposals, and responses
-- Decline with reason: optional message when a member declines a shift
-- Remove participant: Leader can remove members from a Draft shift
-- Replace JWT localStorage auth with BFF pattern and HttpOnly cookies
-- .NET MAUI Blazor Hybrid client as the primary production frontend
+MIT, siehe [LICENSE](LICENSE).
