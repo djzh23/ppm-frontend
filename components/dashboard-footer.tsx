@@ -87,7 +87,7 @@ export function DashboardFooter() {
         </div>
 
         <span style={{ fontSize: "0.72rem", color: "rgba(255,255,255,0.85)" }}>
-          © {year} Shift Management System
+          © {year} Play Pal Manager
         </span>
       </div>
     </footer>
