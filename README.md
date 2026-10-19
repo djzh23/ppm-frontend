@@ -18,7 +18,13 @@ Demo-Zugänge (Passwort: `Pass123$`):
 
 ## Screenshots
 
-![Startseite von Play Pal Manager](public/screenshots/landing.png)
+<img src="public/screenshots/landing.png" alt="Startseite von Play Pal Manager" width="720">
+
+### Einsätze je Rolle
+
+| Koordinator | Festmitarbeiter | Honorarkraft |
+| --- | --- | --- |
+| <a href="public/screenshots/coordinator-shifts.png"><img src="public/screenshots/coordinator-shifts.png" alt="Einsatzübersicht als Koordinator" width="260"></a> | <a href="public/screenshots/festmitarbeiter-shifts.png"><img src="public/screenshots/festmitarbeiter-shifts.png" alt="Einsatzübersicht als Festmitarbeiter" width="260"></a> | <a href="public/screenshots/honorarkraft-shifts.png"><img src="public/screenshots/honorarkraft-shifts.png" alt="Einsatzübersicht als Honorarkraft" width="260"></a> |
 
 ## Funktionen
 
