@@ -18,7 +18,7 @@ Demo-Zugänge (Passwort: `Pass123$`):
 
 ## Screenshots
 
-![Login](public/screenshots/login.png)
+![Startseite von Play Pal Manager](public/screenshots/landing.png)
 
 ## Funktionen
 
