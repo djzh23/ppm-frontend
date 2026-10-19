@@ -4,6 +4,7 @@ import type React from "react"
 import { useState } from "react"
 import { useRouter } from "next/navigation"
 import { login } from "@/lib/auth"
+import { ApiError } from "@/lib/apiClient"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -58,7 +59,11 @@ export default function LoginPage() {
       toast({
         title: "Login fehlgeschlagen",
         description:
-          error instanceof Error ? error.message : "Ungültige Anmeldedaten",
+          error instanceof ApiError && error.status === 401
+            ? "E-Mail oder Passwort ist falsch."
+            : error instanceof Error
+              ? error.message
+              : "Ungültige Anmeldedaten",
         variant: "destructive",
       })
     } finally {
